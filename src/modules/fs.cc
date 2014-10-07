@@ -25,8 +25,8 @@ wrap_stats (v8::Handle<v8::ObjectTemplate> stats, fs_stats *fstats) {
   stats->Set(V8STRING("st_size"), V8NUMBER((long long) fstats->st_size));
   stats->Set(V8STRING("st_blocks"), V8NUMBER((long long) fstats->st_blocks));
   stats->Set(V8STRING("st_blksize"), V8NUMBER((long long) fstats->st_blksize));
-  stats->Set(V8STRING("st_flags"), V8NUMBER((long long) fstats->st_flags));
-  stats->Set(V8STRING("st_gen"), V8NUMBER((long long) fstats->st_gen));
+//  stats->Set(V8STRING("st_flags"), V8NUMBER((long long) fstats->st_flags));
+//  stats->Set(V8STRING("st_gen"), V8NUMBER((long long) fstats->st_gen));
 
   stats->Set(V8STRING("st_atime"), V8DATE((double) (fstats->st_atime * 1000)));
   stats->Set(V8STRING("st_mtime"), V8DATE((double) (fstats->st_mtime * 1000)));

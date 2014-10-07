@@ -16,10 +16,13 @@ OBJS = $(SRC:.cc=.o)
 DEPS = $(wildcard deps/*/*.c)
 DOBJS = $(DEPS:.c=.o)
 
+V8_PATH = v8/out/native/obj.target/tools/gyp
+
 #LIBV8 ?= $(wildcard $(CWD)/v8/out/native/lib*.a)
-LIBV8 = v8/out/native/libv8_base.a \
-				v8/out/native/libv8_libbase.a \
-				v8/out/native/libv8_snapshot.a \
+LIBV8 = $(V8_PATH)/libv8_base.a \
+				$(V8_PATH)/libv8_libbase.a \
+				$(V8_PATH)/libv8_snapshot.a \
+				$(V8_PATH)/libv8_libplatform.a \
 
 STORDB_JS_PATH ?= $(PREFIX)/lib/stordb
 
@@ -31,20 +34,20 @@ CORO_FLAGS += -DCORO_PTHREAD
 CFLAGS += $(CORO_FLAGS) -std=c99 -Ideps
 
 CXXFLAGS += -std=gnu++11
-CXXFLAGS += -Ideps -Iinclude -Iv8/include
+CXXFLAGS += -Ideps -Iinclude -Iv8 -Iv8/include
 CXXFLAGS += -DSTORDB_JS_PATH='"$(STORDB_JS_PATH)"'
 CXXFLAGS += $(CORO_FLAGS)
 
 ifeq ($(OS), Darwin)
 	CXXFLAGS += -stdlib=libstdc++
 else
-	CXXFLAGS += -lrt
+	CXXFLAGS += -lrt -lpthread -ldl
 endif
 
 .PHONY: $(BIN)
 $(BIN): out $(TARGET_STATIC)
 	@echo "  CXX($(BIN))"
-	@$(CXX) $(OUT)/$(TARGET_STATIC) $(LIBV8) $(LDB) $(MAIN) $(CXXFLAGS) -o $(OUT)/$(BIN)
+	@$(CXX) $(CXXFLAGS) $(MAIN) -o $(OUT)/$(BIN) $(OUT)/$(TARGET_STATIC) $(LIBV8) $(LDB)
 	@echo "  OUT($(OUT)/$(BIN))"
 
 .PHONY: $(TARGET_STATIC)
@@ -96,11 +99,10 @@ dependencies: v8
 
 v8:
 	@echo "  MAKE $(@)"
-	@#make dependencies -C $(@)
-	@#make builddeps -C $(@)
+	@make dependencies -C $(@)
+	@make builddeps -C $(@)
 	@make i18nsupport=off native -C $(@)
 
 clean:
 	rm -f $(BIN)
 	rm -f $(TARGET_STATIC)
-
